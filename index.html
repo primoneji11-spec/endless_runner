@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEO RUNNER — Cybernetic Odyssey</title>
+    <meta name="description" content="NEO RUNNER: A cybernetic endless runner game with multiple heroes and scenarios.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ====== GAME CANVAS (always behind UI) ====== -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- ====== SCREEN: PLAY (Main Menu) ====== -->
+        <div id="screen-play" class="screen active">
+            <header class="top-bar">
+                <div class="logo-area">
+                    <span class="logo-icon">◈</span>
+                    <span class="logo-text">NEO RUNNER</span>
+                </div>
+                <div id="menu-highscore" class="hs-badge">
+                    <span class="hs-label">HIGH SCORE</span>
+                    <span class="hs-value" id="menu-hs-val">0</span>
+                </div>
+            </header>
+
+            <div class="play-content">
+                <p class="subtitle">CYBERNETIC ODYSSEY</p>
+                <h1 class="title-glow">NEO RUNNER</h1>
+                <div class="title-line"></div>
+
+                <button id="btn-start-mission" class="play-btn pulse">
+                    <div class="play-btn-circle">
+                        <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><polygon points="8,5 19,12 8,19"/></svg>
+                    </div>
+                    <span>START MISSION</span>
+                </button>
+
+                <div class="menu-cards">
+                    <button class="menu-card" data-tab="heroes">
+                        <span class="mc-icon">⚔</span>
+                        <span class="mc-title">Heroes</span>
+                        <span class="mc-sub">Manage your roster</span>
+                    </button>
+                    <button class="menu-card highlight" data-tab="scenarios">
+                        <span class="mc-icon">🗺</span>
+                        <span class="mc-title">Scenarios</span>
+                        <span class="mc-sub">Explore new worlds</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SCREEN: HEROES ====== -->
+        <div id="screen-heroes" class="screen">
+            <header class="top-bar">
+                <div class="logo-area"><span class="logo-icon">◈</span><span class="logo-text">NEO RUNNER</span></div>
+                <button class="icon-btn" data-tab="play">✕</button>
+            </header>
+
+            <div class="screen-body scroll-y">
+                <h2 class="section-title">SELECT HERO</h2>
+                <p class="section-sub">CHOOSE YOUR LEGACY</p>
+                <div class="title-line left"></div>
+
+                <div class="hero-grid" id="hero-grid">
+                    <button class="hero-card selected" data-char="human">
+                        <img src="assets/human_runner.png" alt="Human Runner">
+                        <span class="hero-card-name">HUMAN<br>RUNNER</span>
+                    </button>
+                    <button class="hero-card" data-char="blue-dino">
+                        <img src="assets/blue_dino.png" alt="Blue Dino">
+                        <span class="hero-card-name">BLUE<br>DINO</span>
+                    </button>
+                    <button class="hero-card" data-char="green-dino">
+                        <img src="assets/green_dino.png" alt="Green Dino">
+                        <span class="hero-card-name">GREEN<br>DINO</span>
+                    </button>
+                    <button class="hero-card" data-char="red-dino">
+                        <img src="assets/red_dino.png" alt="Red Dino">
+                        <span class="hero-card-name">RED<br>DINO</span>
+                    </button>
+                </div>
+
+                <!-- Hero Preview -->
+                <div class="hero-preview" id="hero-preview">
+                    <div class="hero-preview-img-wrap">
+                        <img id="hero-preview-img" src="assets/human_runner.png" alt="Preview">
+                    </div>
+                    <h3 id="hero-preview-name">HUMAN RUNNER</h3>
+                    <span class="hero-class" id="hero-preview-class">CLASS: SCOUT</span>
+                    <div class="stat-bars">
+                        <div class="stat-row">
+                            <span class="stat-label">SPEED</span>
+                            <div class="stat-bar"><div class="stat-fill" id="stat-speed" style="width:95%"></div></div>
+                            <span class="stat-val" id="stat-speed-val">95%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">JUMP POWER</span>
+                            <div class="stat-bar"><div class="stat-fill pink" id="stat-jump" style="width:70%"></div></div>
+                            <span class="stat-val" id="stat-jump-val">70%</span>
+                        </div>
+                    </div>
+                    <button class="cta-btn" id="btn-select-hero">SELECT HERO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SCREEN: SCENARIOS ====== -->
+        <div id="screen-scenarios" class="screen">
+            <header class="top-bar">
+                <div class="logo-area"><span class="logo-icon">◈</span><span class="logo-text">NEO RUNNER</span></div>
+                <button class="icon-btn" data-tab="play">✕</button>
+            </header>
+
+            <div class="screen-body scroll-y">
+                <h2 class="section-title">SELECT SCENARIO</h2>
+                <div class="title-line left"></div>
+
+                <div class="scenario-list" id="scenario-list">
+                    <!-- Desert -->
+                    <div class="scenario-card selected" data-env="desert">
+                        <div class="sc-img-wrap">
+                            <img src="assets/desert_scenario.png" alt="Desert">
+                            <span class="sc-badge selected-badge">SELECTED</span>
+                        </div>
+                        <div class="sc-info">
+                            <h3>Desert</h3>
+                            <p>Navigate through the shifting sands of the Classic Dunes. Watch out for luminous cacti and treacherous quicksand pits.</p>
+                            <div class="sc-tags"><span>CLASSIC</span><span>CACTI</span></div>
+                            <button class="sc-select-btn active">START RUN</button>
+                        </div>
+                    </div>
+
+                    <!-- Forest -->
+                    <div class="scenario-card" data-env="forest">
+                        <div class="sc-img-wrap">
+                            <img src="assets/forest_scenario.png" alt="Forest">
+                            <span class="sc-badge unlocked-badge">✓ UNLOCKED</span>
+                        </div>
+                        <div class="sc-info">
+                            <h3>Forest</h3>
+                            <p>A dense, vibrant labyrinth of lush vines and bioluminescent flora. Hidden snakes guard the ancient ruins within.</p>
+                            <div class="sc-tags"><span>LUSH</span><span>VINES</span></div>
+                            <button class="sc-select-btn">SELECT</button>
+                        </div>
+                    </div>
+
+                    <!-- Space -->
+                    <div class="scenario-card" data-env="space">
+                        <div class="sc-img-wrap">
+                            <div class="sc-img-placeholder space-placeholder">
+                                <div class="space-wireframe">
+                                    <svg viewBox="0 0 100 80" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.4">
+                                        <ellipse cx="50" cy="40" rx="40" ry="30"/>
+                                        <ellipse cx="50" cy="40" rx="30" ry="20"/>
+                                        <line x1="10" y1="40" x2="90" y2="40"/>
+                                        <line x1="50" y1="10" x2="50" y2="70"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <span class="sc-badge locked-badge">LOCKED</span>
+                        </div>
+                        <div class="sc-info">
+                            <h3>Space</h3>
+                            <p>The final frontier. Evade planetary debris and high-energy laser traps in a zero-gravity environment.</p>
+                            <div class="sc-tags"><span>PLANETS</span><span>LASERS</span></div>
+                            <button class="sc-select-btn">SELECT</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== IN-GAME HUD ====== -->
+        <div id="game-hud" class="screen">
+            <div class="hud-top">
+                <div class="hud-score-box">
+                    <span class="hud-score-label">HIGH SCORE</span>
+                    <span class="hud-score-value" id="hud-score">000,000</span>
+                </div>
+                <div class="hud-sector">
+                    <span class="hud-sector-label">VELOCITY</span>
+                    <span class="hud-sector-value" id="hud-velocity">1.0x</span>
+                    <div class="hud-progress-bar"><div class="hud-progress-fill" id="hud-progress"></div></div>
+                </div>
+            </div>
+            <div class="hud-bottom">
+                <div class="hud-char-thumb" id="hud-char-thumb">
+                    <img id="hud-char-img" src="assets/human_runner.png" alt="">
+                </div>
+                <div class="hud-info-pill">
+                    <span class="hud-pill-icon">⚡</span>
+                    <div><span class="hud-pill-label">VELOCITY</span><span class="hud-pill-value" id="hud-vel-pill">1.0x</span></div>
+                </div>
+                <button class="hud-ctrl-btn" id="btn-pause">⏸</button>
+            </div>
+
+            <!-- Mobile touch areas -->
+            <div class="touch-area-left" id="touch-crouch"></div>
+            <div class="touch-area-right" id="touch-jump"></div>
+        </div>
+
+        <!-- ====== PAUSE OVERLAY ====== -->
+        <div id="screen-pause" class="screen overlay">
+            <div class="overlay-panel">
+                <h2>PAUSED</h2>
+                <button class="cta-btn" id="btn-resume">RESUME</button>
+                <button class="cta-btn secondary" id="btn-pause-menu">MAIN MENU</button>
+            </div>
+        </div>
+
+        <!-- ====== GAME OVER OVERLAY ====== -->
+        <div id="screen-gameover" class="screen overlay">
+            <div class="overlay-panel">
+                <h2>MISSION FAILED</h2>
+                <div class="go-score">
+                    <span class="go-score-label">DISTANCE</span>
+                    <span class="go-score-value" id="go-final-score">0</span>
+                </div>
+                <div class="go-score small">
+                    <span class="go-score-label">BEST</span>
+                    <span class="go-score-value" id="go-high-score">0</span>
+                </div>
+                <button class="cta-btn" id="btn-retry">TRY AGAIN</button>
+                <button class="cta-btn secondary" id="btn-go-menu">MAIN MENU</button>
+            </div>
+        </div>
+
+        <!-- ====== BOTTOM NAV ====== -->
+        <nav id="bottom-nav">
+            <button class="nav-tab active" data-tab="play">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><polygon points="8,5 19,12 8,19"/></svg>
+                <span>Play</span>
+            </button>
+            <button class="nav-tab" data-tab="heroes">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><circle cx="19" cy="7" r="3"/><path d="M21 21v-1.5a3 3 0 00-3-3"/></svg>
+                <span>Heroes</span>
+            </button>
+            <button class="nav-tab" data-tab="scenarios">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                <span>Scenarios</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Scripts -->
+    <script src="Audio.js"></script>
+    <script src="ParticleSystem.js"></script>
+    <script src="EnvironmentManager.js"></script>
+    <script src="Player.js"></script>
+    <script src="ObstacleManager.js"></script>
+    <script src="InputHandler.js"></script>
+    <script src="Game.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
