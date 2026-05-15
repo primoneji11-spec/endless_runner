@@ -69,27 +69,35 @@
 
                 <div class="hero-grid" id="hero-grid">
                     <button class="hero-card selected" data-char="human">
-                        <img src="assets/human_runner.png" alt="Human Runner">
+                        <div class="hero-card-icon">🏃</div>
                         <span class="hero-card-name">HUMAN<br>RUNNER</span>
                     </button>
                     <button class="hero-card" data-char="blue-dino">
-                        <img src="assets/blue_dino.png" alt="Blue Dino">
+                        <div class="hero-card-icon">🦕</div>
                         <span class="hero-card-name">BLUE<br>DINO</span>
                     </button>
                     <button class="hero-card" data-char="green-dino">
-                        <img src="assets/green_dino.png" alt="Green Dino">
+                        <div class="hero-card-icon">🦎</div>
                         <span class="hero-card-name">GREEN<br>DINO</span>
                     </button>
                     <button class="hero-card" data-char="red-dino">
-                        <img src="assets/red_dino.png" alt="Red Dino">
+                        <div class="hero-card-icon">🐉</div>
                         <span class="hero-card-name">RED<br>DINO</span>
+                    </button>
+                    <button class="hero-card" data-char="robot">
+                        <div class="hero-card-icon">🤖</div>
+                        <span class="hero-card-name">CYBER<br>ROBOT</span>
+                    </button>
+                    <button class="hero-card" data-char="neon-hero">
+                        <div class="hero-card-icon">⚡</div>
+                        <span class="hero-card-name">NEON<br>HERO</span>
                     </button>
                 </div>
 
                 <!-- Hero Preview -->
                 <div class="hero-preview" id="hero-preview">
                     <div class="hero-preview-img-wrap">
-                        <img id="hero-preview-img" src="assets/human_runner.png" alt="Preview">
+                        <div class="hero-preview-icon" id="hero-preview-img">🏃</div>
                     </div>
                     <h3 id="hero-preview-name">HUMAN RUNNER</h3>
                     <span class="hero-class" id="hero-preview-class">CLASS: SCOUT</span>
@@ -186,8 +194,12 @@
                 <div class="hud-sector">
                     <span class="hud-sector-label">VELOCITY</span>
                     <span class="hud-sector-value" id="hud-velocity">1.0x</span>
-                    <div class="hud-progress-bar"><div class="hud-progress-fill" id="hud-progress"></div></div>
+                    <div class="hud-phase-badge" id="hud-phase-label">DESERT</div>
                 </div>
+            </div>
+            <div class="hud-progress-wrapper">
+                <div class="hud-progress-bar-full"><div class="hud-progress-fill" id="hud-progress"></div></div>
+                <span class="hud-progress-label" id="hud-progress-label">CYBER CITY: 500</span>
             </div>
             <div class="hud-bottom">
                 <div class="hud-char-thumb" id="hud-char-thumb">
@@ -255,6 +267,7 @@
     <script src="Player.js"></script>
     <script src="ObstacleManager.js"></script>
     <script src="InputHandler.js"></script>
+    <script src="BossManager.js"></script>
     <script src="Game.js"></script>
     <script src="main.js"></script>
 </body>

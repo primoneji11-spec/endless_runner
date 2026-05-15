@@ -68,6 +68,27 @@ class ObstacleManager {
                 o.height = 8;
                 o.y = groundY - 35 - Math.random() * 40;
                 break;
+            case 'cyber-drone':
+                o.width = 34;
+                o.height = 28;
+                o.y = groundY - 60 - Math.random() * 25;
+                break;
+            case 'energy-barrier':
+                o.width = 16;
+                o.height = 55 + Math.random() * 20;
+                o.y = groundY - o.height;
+                break;
+            case 'fire-rock':
+                o.width = 30 + Math.random() * 15;
+                o.height = 35 + Math.random() * 20;
+                o.y = groundY - o.height;
+                break;
+            case 'lava-geyser':
+                o.width = 20;
+                o.height = 50 + Math.random() * 30;
+                o.y = groundY - o.height;
+                o.eruptPhase = Math.random() * Math.PI * 2;
+                break;
         }
 
         this.obstacles.push(o);
@@ -76,9 +97,11 @@ class ObstacleManager {
     _randomType() {
         const r = Math.random();
         switch (this.envType) {
-            case 'desert': return r > 0.3 ? 'cactus' : 'bird';
-            case 'forest': return r > 0.4 ? 'snake' : 'vine';
-            case 'space':  return r > 0.45 ? 'asteroid' : 'laser';
+            case 'desert':    return r > 0.3 ? 'cactus' : 'bird';
+            case 'forest':    return r > 0.4 ? 'snake' : 'vine';
+            case 'space':     return r > 0.45 ? 'asteroid' : 'laser';
+            case 'cybercity': return r > 0.4 ? 'cyber-drone' : 'energy-barrier';
+            case 'volcano':   return r > 0.45 ? 'fire-rock' : 'lava-geyser';
         }
         return 'cactus';
     }
@@ -88,12 +111,16 @@ class ObstacleManager {
         for (const o of this.obstacles) {
             ctx.save();
             switch (o.type) {
-                case 'cactus':   this._drawCactus(ctx, o); break;
-                case 'bird':     this._drawBird(ctx, o); break;
-                case 'snake':    this._drawSnake(ctx, o); break;
-                case 'vine':     this._drawVine(ctx, o); break;
-                case 'asteroid': this._drawAsteroid(ctx, o); break;
-                case 'laser':    this._drawLaser(ctx, o); break;
+                case 'cactus':         this._drawCactus(ctx, o); break;
+                case 'bird':           this._drawBird(ctx, o); break;
+                case 'snake':          this._drawSnake(ctx, o); break;
+                case 'vine':           this._drawVine(ctx, o); break;
+                case 'asteroid':       this._drawAsteroid(ctx, o); break;
+                case 'laser':          this._drawLaser(ctx, o); break;
+                case 'cyber-drone':    this._drawCyberDrone(ctx, o); break;
+                case 'energy-barrier': this._drawEnergyBarrier(ctx, o); break;
+                case 'fire-rock':      this._drawFireRock(ctx, o); break;
+                case 'lava-geyser':    this._drawLavaGeyser(ctx, o); break;
             }
             ctx.restore();
         }
@@ -301,6 +328,108 @@ class ObstacleManager {
         ctx.quadraticCurveTo(x, y, x + r, y);
         ctx.closePath();
         ctx.fill();
+    }
+
+    _drawCyberDrone(ctx, o) {
+        const cx = o.x + o.width / 2;
+        const cy = o.y + o.height / 2;
+        const hover = Math.sin(performance.now() * 0.005) * 3;
+        // Body
+        ctx.fillStyle = '#3a0060';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + hover, o.width / 2, o.height / 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Top dome
+        ctx.fillStyle = '#5a0090';
+        ctx.beginPath();
+        ctx.arc(cx, cy - 4 + hover, 10, Math.PI, 0);
+        ctx.fill();
+        // Eye/sensor
+        ctx.fillStyle = '#c840ff';
+        ctx.shadowColor = '#c840ff'; ctx.shadowBlur = 8;
+        ctx.beginPath(); ctx.arc(cx, cy - 2 + hover, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        // Propeller lines
+        const rot = performance.now() * 0.02;
+        ctx.strokeStyle = 'rgba(200,64,255,0.4)'; ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx - 16 * Math.cos(rot), cy - 8 + hover);
+        ctx.lineTo(cx + 16 * Math.cos(rot), cy - 8 + hover);
+        ctx.stroke();
+    }
+
+    _drawEnergyBarrier(ctx, o) {
+        const t = performance.now() * 0.003;
+        const alpha = 0.5 + Math.sin(t * 3) * 0.2;
+        // Glow
+        ctx.fillStyle = `rgba(200,64,255,0.08)`;
+        ctx.fillRect(o.x - 6, o.y, o.width + 12, o.height);
+        // Main beam
+        ctx.fillStyle = `rgba(200,64,255,${alpha})`;
+        this._rr(ctx, o.x, o.y, o.width, o.height, 4);
+        // Core
+        ctx.fillStyle = `rgba(255,200,255,${alpha})`;
+        ctx.fillRect(o.x + 4, o.y + 4, o.width - 8, o.height - 8);
+        // Nodes
+        ctx.shadowColor = '#c840ff'; ctx.shadowBlur = 10;
+        ctx.fillStyle = '#c840ff';
+        ctx.beginPath(); ctx.arc(o.x + o.width / 2, o.y, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(o.x + o.width / 2, o.y + o.height, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+
+    _drawFireRock(ctx, o) {
+        const cx = o.x + o.width / 2;
+        const cy = o.y + o.height / 2;
+        // Glow beneath
+        ctx.fillStyle = 'rgba(255,80,0,0.1)';
+        ctx.beginPath(); ctx.arc(cx, o.y + o.height, o.width / 2 + 5, 0, Math.PI * 2); ctx.fill();
+        // Rock body
+        ctx.fillStyle = '#2a1a0a';
+        ctx.beginPath();
+        const pts = 7;
+        for (let i = 0; i < pts; i++) {
+            const angle = (i / pts) * Math.PI * 2;
+            const r = (i % 2 === 0 ? o.width : o.width * 0.8) / 2;
+            const px = cx + Math.cos(angle) * r;
+            const py = cy + Math.sin(angle) * (o.height / 2) * (i % 2 === 0 ? 1 : 0.85);
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath(); ctx.fill();
+        // Lava cracks
+        ctx.strokeStyle = `rgba(255,100,0,${0.5 + Math.sin(performance.now() * 0.003) * 0.3})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(cx - 5, cy - 8); ctx.lineTo(cx + 2, cy); ctx.lineTo(cx - 3, cy + 8); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx + 6, cy - 5); ctx.lineTo(cx + 3, cy + 5); ctx.stroke();
+    }
+
+    _drawLavaGeyser(ctx, o) {
+        const t = performance.now() * 0.003;
+        const eruptAlpha = 0.4 + Math.sin(t * 2 + (o.eruptPhase || 0)) * 0.3;
+        // Base vent
+        ctx.fillStyle = '#3a1a0a';
+        this._rr(ctx, o.x - 4, o.y + o.height - 12, o.width + 8, 12, 3);
+        // Fire column
+        const grad = ctx.createLinearGradient(0, o.y, 0, o.y + o.height);
+        grad.addColorStop(0, `rgba(255,200,0,${eruptAlpha * 0.3})`);
+        grad.addColorStop(0.4, `rgba(255,100,0,${eruptAlpha})`);
+        grad.addColorStop(1, `rgba(255,50,0,${eruptAlpha * 0.8})`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(o.x + 2, o.y, o.width - 4, o.height - 10);
+        // Hot core
+        ctx.fillStyle = `rgba(255,255,100,${eruptAlpha * 0.5})`;
+        ctx.fillRect(o.x + 6, o.y + 5, o.width - 12, o.height - 20);
+        // Sparks
+        ctx.fillStyle = '#ffaa00';
+        for (let i = 0; i < 3; i++) {
+            const sy = o.y + Math.sin(t * 3 + i * 2) * o.height * 0.3 + o.height * 0.2;
+            const sx = o.x + o.width / 2 + Math.cos(t * 4 + i) * 6;
+            ctx.beginPath(); ctx.arc(sx, sy, 2, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.shadowColor = '#ff6600'; ctx.shadowBlur = 15;
+        ctx.fillStyle = 'rgba(255,100,0,0.01)';
+        ctx.fillRect(o.x, o.y, o.width, o.height);
+        ctx.shadowBlur = 0;
     }
 
     checkCollision(pBounds) {

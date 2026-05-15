@@ -6,10 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // =========== HERO DATA ===========
     const HEROES = {
-        'human':      { name: 'HUMAN RUNNER', cls: 'CLASS: SCOUT',    img: 'assets/human_runner.png', speed: 95, jump: 70 },
-        'blue-dino':  { name: 'BLUE DINO',    cls: 'CLASS: AGILE',    img: 'assets/blue_dino.png',    speed: 80, jump: 90 },
-        'green-dino': { name: 'GREEN DINO',   cls: 'CLASS: BALANCED', img: 'assets/green_dino.png',   speed: 85, jump: 85 },
-        'red-dino':   { name: 'RED DINO',     cls: 'CLASS: POWER',    img: 'assets/red_dino.png',     speed: 70, jump: 95 }
+        'human':      { name: 'HUMAN RUNNER', cls: 'CLASS: SCOUT',    icon: '🏃', speed: 95, jump: 70 },
+        'blue-dino':  { name: 'BLUE DINO',    cls: 'CLASS: AGILE',    icon: '🦕', speed: 80, jump: 90 },
+        'green-dino': { name: 'GREEN DINO',   cls: 'CLASS: BALANCED', icon: '🦎', speed: 85, jump: 85 },
+        'red-dino':   { name: 'RED DINO',     cls: 'CLASS: POWER',    icon: '🐉', speed: 70, jump: 95 },
+        'robot':      { name: 'CYBER ROBOT',  cls: 'CLASS: TANK',     icon: '🤖', speed: 65, jump: 55 },
+        'neon-hero':  { name: 'NEON HERO',    cls: 'CLASS: STRIKER',  icon: '⚡', speed: 90, jump: 88 }
     };
 
     // =========== STATE ===========
@@ -89,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateHeroPreview(charKey) {
         const h = HEROES[charKey];
         if (!h) return;
-        previewImg.src = h.img;
+        previewImg.textContent = h.icon;
         previewName.textContent = h.name;
         previewClass.textContent = h.cls;
         statSpeed.style.width = h.speed + '%';
