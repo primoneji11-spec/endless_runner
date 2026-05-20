@@ -124,7 +124,7 @@ class Game {
     }
 
     _update(dt) {
-        this.speed += 0.0004;
+        this.speed += 0.00025;
         this.score += 0.12 * this.speed;
 
         if (this.score >= this.scoreNextBeep) {
