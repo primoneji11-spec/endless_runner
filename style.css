@@ -698,17 +698,139 @@ img { display: block; max-width: 100%; }
 }
 .hud-ctrl-btn:hover { border-color: var(--cyan); }
 
-/* Touch Areas (invisible, for mobile) */
+/* Touch Areas (sleek, futuristic overlay for mobile) */
 .touch-area-left, .touch-area-right {
     position: absolute;
     top: 60px;
     bottom: 80px;
     width: 50%;
     z-index: 15;
-    /* Uncomment to debug: background: rgba(255,0,0,0.1); */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    touch-action: none;
+    transition: background 0.2s;
 }
-.touch-area-left { left: 0; }
-.touch-area-right { right: 0; }
+.touch-area-left {
+    left: 0;
+    border-right: 1px dashed rgba(255, 0, 85, 0.04);
+}
+.touch-area-right {
+    right: 0;
+    border-left: 1px dashed rgba(0, 240, 255, 0.04);
+}
+
+/* Indicators */
+.touch-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0.18;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    pointer-events: none;
+    transform: scale(0.9);
+}
+
+.touch-hint-icon {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s;
+}
+
+.crouch-icon {
+    color: var(--pink);
+    border-color: rgba(255, 0, 85, 0.2);
+}
+
+.jump-icon {
+    color: var(--cyan);
+    border-color: rgba(0, 240, 255, 0.2);
+}
+
+.touch-hint-text {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+}
+
+/* Active / Pressed state styling */
+.touch-area-left.pressed {
+    background: radial-gradient(circle, rgba(255, 0, 85, 0.1) 0%, transparent 70%);
+}
+.touch-area-right.pressed {
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
+}
+
+.touch-area-left.pressed .touch-hint {
+    opacity: 0.85;
+    transform: scale(1.06);
+}
+.touch-area-left.pressed .touch-hint-icon {
+    background: rgba(255, 0, 85, 0.12);
+    border-color: var(--pink);
+    box-shadow: 0 0 15px var(--pink);
+}
+
+.touch-area-right.pressed .touch-hint {
+    opacity: 0.85;
+    transform: scale(1.06);
+}
+.touch-area-right.pressed .touch-hint-icon {
+    background: rgba(0, 240, 255, 0.12);
+    border-color: var(--cyan);
+    box-shadow: 0 0 15px var(--cyan);
+}
+
+/* Expanding touch ripple effect */
+.touch-ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+}
+.touch-area-left .touch-ripple {
+    border: 2px solid var(--pink);
+    background: radial-gradient(circle, rgba(255, 0, 85, 0.2) 0%, transparent 70%);
+}
+.touch-area-right .touch-ripple {
+    border: 2px solid var(--cyan);
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.2) 0%, transparent 70%);
+}
+
+.touch-ripple.animate {
+    animation: touch-ripple-animation 0.4s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes touch-ripple-animation {
+    0% {
+        width: 10px;
+        height: 10px;
+        transform: translate(-50%, -50%) scale(0.1);
+        opacity: 0.8;
+    }
+    100% {
+        width: 320px;
+        height: 320px;
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
 
 /* ============= OVERLAYS (Pause/GameOver) ============= */
 .overlay-panel {
