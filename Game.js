@@ -1,7 +1,32 @@
 /* ===================================================
    Game.js — Core game loop, state machine, scoring,
-   phase system, and boss battle integration
+   phase system, difficulty modes, and boss battles
    =================================================== */
+
+// Difficulty presets
+const DIFFICULTY_CONFIGS = {
+    normal: {
+        jumpScale: 1.0,       // Base jump (can't clear birds)
+        initialSpeed: 1.0,
+        speedRamp: 0.00025,
+        obstacleMinGap: 55,
+        obstacleSpawnMin: 50,
+        obstacleSpawnMax: 70,
+        bossThreshold: 1000,
+        label: 'NORMAL'
+    },
+    hard: {
+        jumpScale: 1.0,       // Same low jump
+        initialSpeed: 1.5,    // Starts 50% faster
+        speedRamp: 0.0005,    // Ramps 2x faster
+        obstacleMinGap: 35,   // Obstacles much closer
+        obstacleSpawnMin: 30,
+        obstacleSpawnMax: 50,
+        bossThreshold: 800,
+        label: 'HARD'
+    }
+};
+
 class Game {
     constructor() {
         this.canvas = document.getElementById('game-canvas');
@@ -37,9 +62,12 @@ class Game {
         this.bossDefeated = false;
         this.bossScoreThreshold = 1000;
 
-        // Character / Environment selection
+        // Character / Environment / Difficulty
         this.charType = 'human';
         this.envType = 'desert';
+        this.difficulty = 'normal';
+        this.playerName = 'RUNNER_001';
+        this.diffConfig = DIFFICULTY_CONFIGS.normal;
 
         // HUD references
         this.hudScore = document.getElementById('hud-score');
@@ -65,23 +93,30 @@ class Game {
     _updateGroundY() { this.groundY = this.canvas.height - 90; }
 
     // ========= PUBLIC API =========
-    start(charType, envType) {
+    start(charType, envType, difficulty, playerName) {
         this.charType = charType;
         this.envType = envType;
+        this.difficulty = difficulty || 'normal';
+        this.playerName = playerName || 'RUNNER_001';
+        this.diffConfig = DIFFICULTY_CONFIGS[this.difficulty] || DIFFICULTY_CONFIGS.normal;
+
         this.player = new Player(this.canvas, charType);
         this.player.y = this.groundY - this.player.height;
+
         this.env.setEnvironment(envType);
         this.obs.setEnvironment(envType);
+        this.obs.setDifficulty(this.diffConfig);
         this.particles.clear();
         this.boss = new BossManager(this.canvas);
 
         this.score = 0;
-        this.speed = 1;
+        this.speed = this.diffConfig.initialSpeed;
         this.scoreNextBeep = 100;
         this.currentPhase = envType;
         this.phaseTriggered = {};
         this.bossSpawned = false;
         this.bossDefeated = false;
+        this.bossScoreThreshold = this.diffConfig.bossThreshold;
         this.input.reset();
         this.state = 'PLAYING';
         this.lastTime = performance.now();
@@ -104,14 +139,47 @@ class Game {
         this.state = 'GAMEOVER';
         window.audio.stopBgMusic();
         window.audio.play('death');
-        if (this.score > this.highScore) {
-            this.highScore = Math.floor(this.score);
+        
+        const finalScore = Math.floor(this.score);
+        if (finalScore > this.highScore) {
+            this.highScore = finalScore;
             localStorage.setItem('neo_runner_hs', this.highScore);
         }
+        
         if (this.player) {
             this.particles.emit(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 30, '#ff0055', { spread: 8, sizeMax: 6 });
         }
-        window.dispatchEvent(new CustomEvent('game:over', { detail: { score: Math.floor(this.score), highScore: this.highScore } }));
+
+        const isNewTop10 = this.saveToRanking(this.playerName, finalScore, this.difficulty);
+
+        window.dispatchEvent(new CustomEvent('game:over', { 
+            detail: { 
+                score: finalScore, 
+                highScore: this.highScore,
+                playerName: this.playerName,
+                difficulty: this.difficulty,
+                isNewTop10: isNewTop10
+            } 
+        }));
+    }
+
+    saveToRanking(name, score, difficulty) {
+        let ranking = JSON.parse(localStorage.getItem('neo_runner_leaderboard')) || [];
+        const newRecord = {
+            name: name || 'RUNNER_001',
+            score: Math.floor(score),
+            difficulty: difficulty || 'normal',
+            date: new Date().toLocaleDateString('pt-BR')
+        };
+        ranking.push(newRecord);
+        // Ordena por score descendente
+        ranking.sort((a, b) => b.score - a.score);
+        // Limita aos top 10
+        ranking = ranking.slice(0, 10);
+        localStorage.setItem('neo_runner_leaderboard', JSON.stringify(ranking));
+
+        // Retorna true se a nova pontuação foi inserida no ranking
+        return ranking.some(item => item.score === newRecord.score && item.name === newRecord.name && item.date === newRecord.date);
     }
 
     // ========= GAME LOOP =========
@@ -124,7 +192,7 @@ class Game {
     }
 
     _update(dt) {
-        this.speed += 0.00025;
+        this.speed += this.diffConfig.speedRamp;
         this.score += 0.12 * this.speed;
 
         if (this.score >= this.scoreNextBeep) {

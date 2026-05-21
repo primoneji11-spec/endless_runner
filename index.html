@@ -184,6 +184,40 @@
             </div>
         </div>
 
+        <!-- ====== SCREEN: RANKING ====== -->
+        <div id="screen-ranking" class="screen">
+            <header class="top-bar">
+                <div class="logo-area"><span class="logo-icon">◈</span><span class="logo-text">NEO RUNNER</span></div>
+                <button class="icon-btn" data-tab="play">✕</button>
+            </header>
+
+            <div class="screen-body scroll-y">
+                <h2 class="section-title">LEADERBOARD</h2>
+                <p class="section-sub">TOP RUNNERS EM OPERAÇÃO</p>
+                <div class="title-line left"></div>
+
+                <div class="ranking-container">
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>POS</th>
+                                <th>RUNNER</th>
+                                <th>MODO</th>
+                                <th>SCORE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ranking-list-body">
+                            <!-- Inserido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                    <div id="ranking-empty-msg" class="ranking-empty hidden">
+                        <span class="empty-icon">📂</span>
+                        <p>Nenhum registro de missão encontrado. Complete uma corrida para pontuar!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ====== IN-GAME HUD ====== -->
         <div id="game-hud" class="screen">
             <div class="hud-top">
@@ -232,26 +266,60 @@
         <!-- ====== PAUSE OVERLAY ====== -->
         <div id="screen-pause" class="screen overlay">
             <div class="overlay-panel">
-                <h2>PAUSED</h2>
-                <button class="cta-btn" id="btn-resume">RESUME</button>
-                <button class="cta-btn secondary" id="btn-pause-menu">MAIN MENU</button>
+                <h2>PAUSADO</h2>
+                <button class="cta-btn" id="btn-resume">RETOMAR</button>
+                <button class="cta-btn secondary" id="btn-pause-menu">MENU PRINCIPAL</button>
             </div>
         </div>
 
         <!-- ====== GAME OVER OVERLAY ====== -->
         <div id="screen-gameover" class="screen overlay">
             <div class="overlay-panel">
-                <h2>MISSION FAILED</h2>
+                <h2>MISSÃO FALHOU</h2>
+                <div class="go-runner-badge" id="go-runner-badge">RUNNER: RUNNER_001</div>
                 <div class="go-score">
-                    <span class="go-score-label">DISTANCE</span>
+                    <span class="go-score-label">DISTÂNCIA</span>
                     <span class="go-score-value" id="go-final-score">0</span>
                 </div>
                 <div class="go-score small">
-                    <span class="go-score-label">BEST</span>
+                    <span class="go-score-label">RECORDE</span>
                     <span class="go-score-value" id="go-high-score">0</span>
                 </div>
-                <button class="cta-btn" id="btn-retry">TRY AGAIN</button>
-                <button class="cta-btn secondary" id="btn-go-menu">MAIN MENU</button>
+                <div class="go-rank-notice hidden" id="go-rank-notice">
+                    <span>🏆 NOVO RECORDISTA TOP 10!</span>
+                </div>
+                <button class="cta-btn" id="btn-retry">TENTAR NOVAMENTE</button>
+                <button class="cta-btn secondary" id="btn-go-menu">MENU PRINCIPAL</button>
+            </div>
+        </div>
+
+        <!-- ====== MISSION SETUP OVERLAY ====== -->
+        <div id="screen-mission-setup" class="screen overlay">
+            <div class="overlay-panel mission-setup-panel">
+                <h2>INICIALIZAÇÃO DA MISSÃO</h2>
+                <div class="title-line"></div>
+                
+                <div class="input-group">
+                    <label for="input-player-name">CODENAME DO RUNNER</label>
+                    <input type="text" id="input-player-name" maxlength="12" placeholder="RUNNER_001" autocomplete="off">
+                </div>
+                
+                <div class="difficulty-selection">
+                    <span class="diff-title">NÍVEL DE DIFICULDADE</span>
+                    <div class="diff-options">
+                        <button class="diff-opt-btn active" id="diff-normal-btn" data-diff="normal">
+                            <span class="diff-opt-title text-cyan">MODO NORMAL</span>
+                            <span class="diff-opt-desc">Velocidade equilibrada. Pulo menor: requer deslizar por baixo dos pássaros.</span>
+                        </button>
+                        <button class="diff-opt-btn" id="diff-hard-btn" data-diff="hard">
+                            <span class="diff-opt-title text-pink">MODO HARD</span>
+                            <span class="diff-opt-desc">Inicia a 1.5x de velocidade, rampas de velocidade 2x mais rápidas e obstáculos frenéticos!</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <button class="cta-btn pulse" id="btn-launch-mission">INICIAR CORRIDA</button>
+                <button class="cta-btn secondary" id="btn-cancel-mission">CANCELAR</button>
             </div>
         </div>
 
@@ -259,15 +327,19 @@
         <nav id="bottom-nav">
             <button class="nav-tab active" data-tab="play">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><polygon points="8,5 19,12 8,19"/></svg>
-                <span>Play</span>
+                <span>Jogar</span>
             </button>
             <button class="nav-tab" data-tab="heroes">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><circle cx="19" cy="7" r="3"/><path d="M21 21v-1.5a3 3 0 00-3-3"/></svg>
-                <span>Heroes</span>
+                <span>Heróis</span>
             </button>
             <button class="nav-tab" data-tab="scenarios">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-                <span>Scenarios</span>
+                <span>Cenários</span>
+            </button>
+            <button class="nav-tab" data-tab="ranking">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <span>Ranking</span>
             </button>
         </nav>
     </div>

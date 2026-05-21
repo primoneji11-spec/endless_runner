@@ -8,7 +8,17 @@ class ObstacleManager {
         this.obstacles = [];
         this.spawnTimer = 80;
         this.envType = 'desert';
-        this.minGap = 55; // Minimum frames between spawns
+
+        // Difficulty-tunable spawn settings
+        this.minGap = 55;
+        this.spawnRangeMin = 50;
+        this.spawnRangeMax = 70;
+    }
+
+    setDifficulty(config) {
+        this.minGap = config.obstacleMinGap || 55;
+        this.spawnRangeMin = config.obstacleSpawnMin || 50;
+        this.spawnRangeMax = config.obstacleSpawnMax || 70;
     }
 
     setEnvironment(type) {
@@ -21,7 +31,7 @@ class ObstacleManager {
         this.spawnTimer--;
         if (this.spawnTimer <= 0) {
             this._spawn(groundY);
-            this.spawnTimer = Math.max(this.minGap, (Math.random() * 70 + 50) / Math.max(0.8, speed * 0.7));
+            this.spawnTimer = Math.max(this.minGap, (Math.random() * (this.spawnRangeMax - this.spawnRangeMin) + this.spawnRangeMin) / Math.max(0.8, speed * 0.7));
         }
 
         for (let i = this.obstacles.length - 1; i >= 0; i--) {
@@ -40,7 +50,7 @@ class ObstacleManager {
         switch (type) {
             case 'cactus':
                 o.width = 28 + Math.random() * 12;
-                o.height = 40 + Math.random() * 25;
+                o.height = 30 + Math.random() * 20; // Max 50 — clearable with reduced jump
                 o.y = groundY - o.height;
                 break;
             case 'bird':
@@ -75,12 +85,12 @@ class ObstacleManager {
                 break;
             case 'energy-barrier':
                 o.width = 16;
-                o.height = 55 + Math.random() * 20;
+                o.height = 40 + Math.random() * 15; // Reduced for lower jump
                 o.y = groundY - o.height;
                 break;
             case 'fire-rock':
                 o.width = 30 + Math.random() * 15;
-                o.height = 35 + Math.random() * 20;
+                o.height = 28 + Math.random() * 18; // Reduced for lower jump
                 o.y = groundY - o.height;
                 break;
             case 'lava-geyser':

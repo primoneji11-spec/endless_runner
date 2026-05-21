@@ -37,14 +37,17 @@ class Player {
     }
 
     _getJumpForce() {
+        // Base jump forces (tuned for Normal mode)
+        // Max jump height ≈ v²/(2*g). With -7.5 & g=0.55 → ~51px
+        // Birds spawn at groundY-65, so players MUST crouch under them
         switch (this.charType) {
-            case 'human':      return -12.5;
-            case 'blue-dino':  return -13.0;
-            case 'green-dino': return -12.0;
-            case 'red-dino':   return -14.0;
-            case 'robot':      return -11.5; // Heavier, shorter jump
-            case 'neon-hero':  return -13.5; // Lighter, higher jump
-            default:           return -12.5;
+            case 'human':      return -7.5;
+            case 'blue-dino':  return -7.8;
+            case 'green-dino': return -7.2;
+            case 'red-dino':   return -8.0;
+            case 'robot':      return -6.8;  // Heavier, shorter jump
+            case 'neon-hero':  return -7.6;  // Lighter, balanced
+            default:           return -7.5;
         }
     }
 

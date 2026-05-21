@@ -17,45 +17,52 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========== STATE ===========
     let selectedChar = 'human';
     let selectedEnv = 'desert';
+    let selectedDifficulty = 'normal';
     
     // =========== DOM REFS ===========
     const screens = {
         play:      document.getElementById('screen-play'),
         heroes:    document.getElementById('screen-heroes'),
         scenarios: document.getElementById('screen-scenarios'),
+        ranking:   document.getElementById('screen-ranking'),
         hud:       document.getElementById('game-hud'),
         pause:     document.getElementById('screen-pause'),
-        gameover:  document.getElementById('screen-gameover')
+        gameover:  document.getElementById('screen-gameover'),
+        'mission-setup': document.getElementById('screen-mission-setup')
     };
     const bottomNav = document.getElementById('bottom-nav');
 
     // =========== NAVIGATION ===========
-    const overlayScreens = ['pause', 'gameover'];
-    const baseScreens = ['play', 'heroes', 'scenarios', 'hud'];
+    const overlayScreens = ['pause', 'gameover', 'mission-setup'];
+    const baseScreens = ['play', 'heroes', 'scenarios', 'ranking', 'hud'];
 
     function showScreen(name) {
-        // If showing an overlay, keep the HUD visible behind it
+        // Se estiver exibindo um overlay, mantém o HUD visível atrás dele
         if (overlayScreens.includes(name)) {
-            // Just show the overlay on top
             overlayScreens.forEach(s => screens[s].classList.remove('active'));
             screens[name].classList.add('active');
             return;
         }
 
-        // Hide all screens (base + overlays)
+        // Esconde todas as telas
         Object.values(screens).forEach(s => s.classList.remove('active'));
         
-        // Show target base screen
+        // Exibe a tela alvo
         if (screens[name]) screens[name].classList.add('active');
 
-        // For HUD, keep it visible (game is running)
+        // Carrega o ranking dinamicamente se a tela for aberta
+        if (name === 'ranking') {
+            renderRanking();
+        }
+
+        // Mantém o HUD visível durante a partida
         if (name === 'hud') {
             bottomNav.classList.add('hidden');
             return;
         }
 
-        // Nav state for menu screens
-        const isMenu = ['play', 'heroes', 'scenarios'].includes(name);
+        // Controla exibição do Bottom Nav nas telas de menu
+        const isMenu = ['play', 'heroes', 'scenarios', 'ranking'].includes(name);
         if (isMenu) {
             bottomNav.classList.remove('hidden');
             document.querySelectorAll('.nav-tab').forEach(t => {
@@ -153,25 +160,96 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========== GAME INSTANCE ===========
     const game = new Game();
 
-    // Update menu high score
+    // Atualiza o recorde do menu inicial
     document.getElementById('menu-hs-val').textContent = game.highScore.toLocaleString();
 
-    // =========== START GAME ===========
-    function startGame() {
-        window.audio.init();
-        hideOverlays();
-        showScreen('hud');
-        game.start(selectedChar, selectedEnv);
+    // =========== CONFIGURAÇÃO DE DIFICULDADE (MISSION SETUP) ===========
+    const diffNormalBtn = document.getElementById('diff-normal-btn');
+    const diffHardBtn = document.getElementById('diff-hard-btn');
+
+    diffNormalBtn.addEventListener('click', () => {
+        window.audio.play('select');
+        diffNormalBtn.classList.add('active');
+        diffHardBtn.classList.remove('active');
+        selectedDifficulty = 'normal';
+    });
+
+    diffHardBtn.addEventListener('click', () => {
+        window.audio.play('select');
+        diffHardBtn.classList.add('active');
+        diffNormalBtn.classList.remove('active');
+        selectedDifficulty = 'hard';
+    });
+
+    function openMissionSetup() {
+        window.audio.play('select');
+        const lastCodename = localStorage.getItem('neo_runner_codename') || 'RUNNER_001';
+        document.getElementById('input-player-name').value = lastCodename;
+        
+        // Mantém a última dificuldade ou normal por padrão
+        selectedDifficulty = 'normal';
+        diffNormalBtn.classList.add('active');
+        diffHardBtn.classList.remove('active');
+        
+        showScreen('mission-setup');
     }
 
-    document.getElementById('btn-start-mission').addEventListener('click', startGame);
+    document.getElementById('btn-start-mission').addEventListener('click', openMissionSetup);
 
-    // Start from scenario card "START RUN" button
+    // Iniciar a partir do botão do card de cenários
     scenarioList.addEventListener('click', (e) => {
         if (e.target.closest('.sc-select-btn.active')) {
-            startGame();
+            openMissionSetup();
         }
     });
+
+    document.getElementById('btn-launch-mission').addEventListener('click', () => {
+        window.audio.play('select');
+        let codename = document.getElementById('input-player-name').value.trim().toUpperCase();
+        if (!codename) codename = 'RUNNER_001';
+        
+        // Persiste o codinome
+        localStorage.setItem('neo_runner_codename', codename);
+        
+        hideOverlays();
+        window.audio.init();
+        showScreen('hud');
+        game.start(selectedChar, selectedEnv, selectedDifficulty, codename);
+    });
+
+    document.getElementById('btn-cancel-mission').addEventListener('click', () => {
+        window.audio.play('select');
+        hideOverlays();
+    });
+
+    // =========== RENDERIZAÇÃO DE RANKING (LEADERBOARD) ===========
+    function renderRanking() {
+        const ranking = JSON.parse(localStorage.getItem('neo_runner_leaderboard')) || [];
+        const tbody = document.getElementById('ranking-list-body');
+        const emptyMsg = document.getElementById('ranking-empty-msg');
+        
+        tbody.innerHTML = '';
+        
+        if (ranking.length === 0) {
+            emptyMsg.classList.remove('hidden');
+            return;
+        }
+        
+        emptyMsg.classList.add('hidden');
+        ranking.forEach((record, index) => {
+            const tr = document.createElement('tr');
+            const badgeClass = record.difficulty === 'hard' ? 'hard' : 'normal';
+            const badgeLabel = record.difficulty === 'hard' ? 'HARD' : 'NORMAL';
+            
+            tr.innerHTML = `
+                <td><span class="rank-pos">#${index + 1}</span></td>
+                <td><span class="rank-name">${record.name}</span></td>
+                <td><span class="badge-diff ${badgeClass}">${badgeLabel}</span></td>
+                <td><span class="rank-score">${record.score.toLocaleString()}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
 
     // =========== PAUSE ===========
     document.getElementById('btn-pause').addEventListener('click', () => {
@@ -192,19 +270,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // =========== GAME OVER ===========
     window.addEventListener('game:over', (e) => {
-        const { score, highScore } = e.detail;
+        const { score, highScore, playerName, difficulty, isNewTop10 } = e.detail;
         document.getElementById('go-final-score').textContent = score.toLocaleString();
         document.getElementById('go-high-score').textContent = highScore.toLocaleString();
         document.getElementById('menu-hs-val').textContent = highScore.toLocaleString();
+        document.getElementById('go-runner-badge').textContent = `RUNNER: ${playerName}`;
+        
+        const rankNotice = document.getElementById('go-rank-notice');
+        if (isNewTop10) {
+            rankNotice.classList.remove('hidden');
+        } else {
+            rankNotice.classList.add('hidden');
+        }
 
-        // Small delay so explosion particles show
+        // Pequeno atraso para mostrar partículas de explosão
         setTimeout(() => {
             showScreen('gameover');
         }, 400);
     });
 
     document.getElementById('btn-retry').addEventListener('click', () => {
-        startGame();
+        hideOverlays();
+        window.audio.init();
+        showScreen('hud');
+        game.start(selectedChar, selectedEnv, game.difficulty, game.playerName);
     });
 
     document.getElementById('btn-go-menu').addEventListener('click', () => {
@@ -213,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showScreen('play');
     });
 
-    // =========== KEYBOARD SHORTCUTS ===========
+    // =========== ATALHOS DE TECLADO ===========
     window.addEventListener('keydown', (e) => {
         if (e.code === 'Escape') {
             if (game.state === 'PLAYING') {
@@ -226,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // =========== INIT ===========
+    // =========== INICIALIZAÇÃO ===========
     updateHeroPreview('human');
     showScreen('play');
 });
