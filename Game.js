@@ -6,12 +6,12 @@
 // Difficulty presets
 const DIFFICULTY_CONFIGS = {
     normal: {
-        jumpScale: 1.0,       // Base jump (can't clear birds)
+        jumpScale: 1.5,       // Base jump (can't clear birds)
         initialSpeed: 1.0,
-        speedRamp: 0.00025,
+        speedRamp: 0.00015,
         obstacleMinGap: 55,
         obstacleSpawnMin: 50,
-        obstacleSpawnMax: 70,
+        obstacleSpawnMax: 67,
         bossThreshold: 1000,
         label: 'NORMAL'
     },
@@ -66,7 +66,7 @@ class Game {
         this.charType = 'human';
         this.envType = 'desert';
         this.difficulty = 'normal';
-        this.playerName = 'RUNNER_001';
+        this.playerName = 'Escolha Nome';
         this.diffConfig = DIFFICULTY_CONFIGS.normal;
 
         // HUD references
@@ -97,7 +97,7 @@ class Game {
         this.charType = charType;
         this.envType = envType;
         this.difficulty = difficulty || 'normal';
-        this.playerName = playerName || 'RUNNER_001';
+        this.playerName = playerName || 'Escolha Nome';
         this.diffConfig = DIFFICULTY_CONFIGS[this.difficulty] || DIFFICULTY_CONFIGS.normal;
 
         this.player = new Player(this.canvas, charType);
@@ -150,7 +150,7 @@ class Game {
             this.particles.emit(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 30, '#ff0055', { spread: 8, sizeMax: 6 });
         }
 
-        const isNewTop10 = this.saveToRanking(this.playerName, finalScore, this.difficulty);
+        const isNewTop5 = this.saveToRanking(this.playerName, finalScore, this.difficulty);
 
         window.dispatchEvent(new CustomEvent('game:over', { 
             detail: { 
@@ -166,7 +166,7 @@ class Game {
     saveToRanking(name, score, difficulty) {
         let ranking = JSON.parse(localStorage.getItem('neo_runner_leaderboard')) || [];
         const newRecord = {
-            name: name || 'RUNNER_001',
+            name: name || 'Escolher Nome',
             score: Math.floor(score),
             difficulty: difficulty || 'normal',
             date: new Date().toLocaleDateString('pt-BR')
